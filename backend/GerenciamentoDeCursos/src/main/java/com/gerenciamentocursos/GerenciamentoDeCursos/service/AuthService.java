@@ -12,6 +12,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serviço responsável por concentrar as regras de negócio de autenticação.
+ * Realiza a validação e cadastro de novos usuários, assim como o processo de login
+ * e emissão de tokens JWT.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -21,6 +26,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    /**
+     * Cadastra um novo usuário no sistema.
+     * Verifica se o e-mail informado já está em uso, criptografa a senha antes de
+     * persistir e salva o registro na base de dados.
+     *
+     * @param dto Objeto com as informações do novo usuário (e-mail e senha sem criptografia).
+     * @throws IllegalArgumentException Se o e-mail fornecido já estiver cadastrado no banco.
+     */
     public void cadastrar(UsuarioRequestDTO dto) {
 
         if (usuarioRepository.existsByEmail(dto.email())) {
@@ -40,6 +53,14 @@ public class AuthService {
         usuarioRepository.save(usuario);
     }
 
+    /**
+     * Autentica o usuário no sistema e gera um token JWT de acesso.
+     * Utiliza o {@link AuthenticationManager} do Spring Security para conferir e-mail e senha.
+     *
+     * @param dto Objeto contendo as credenciais do usuário (e-mail e senha).
+     * @return {@link LoginResponseDTO} contendo o token JWT gerado para o usuário.
+     * @throws org.springframework.security.core.AuthenticationException Se as credenciais forem inválidas.
+     */
     public LoginResponseDTO login(LoginRequestDTO dto) {
 
         authenticationManager.authenticate(
