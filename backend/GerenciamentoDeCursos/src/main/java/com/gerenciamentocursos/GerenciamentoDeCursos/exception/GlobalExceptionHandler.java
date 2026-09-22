@@ -84,4 +84,36 @@ public class GlobalExceptionHandler {
                 .body(response);
 
     }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleConflict(
+            EmailAlreadyExistsException exception){
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 409);
+        response.put("error", "Conflict");
+        response.put("message", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+
+    }
+    @ExceptionHandler(AlunoComMatriculaException.class)
+    public ResponseEntity<Map<String, Object>> handleConflict(
+            AlunoComMatriculaException exception) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 409);
+        response.put("error", "Conflict");
+        response.put("message", exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
 }

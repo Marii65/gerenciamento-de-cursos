@@ -4,6 +4,7 @@ import com.gerenciamentocursos.GerenciamentoDeCursos.dto.request.LoginRequestDTO
 import com.gerenciamentocursos.GerenciamentoDeCursos.dto.request.UsuarioRequestDTO;
 import com.gerenciamentocursos.GerenciamentoDeCursos.dto.response.LoginResponseDTO;
 import com.gerenciamentocursos.GerenciamentoDeCursos.entity.Usuario;
+import com.gerenciamentocursos.GerenciamentoDeCursos.exception.EmailAlreadyExistsException;
 import com.gerenciamentocursos.GerenciamentoDeCursos.repository.UsuarioRepository;
 import com.gerenciamentocursos.GerenciamentoDeCursos.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +33,13 @@ public class AuthService {
      * persistir e salva o registro na base de dados.
      *
      * @param dto Objeto com as informações do novo usuário (e-mail e senha sem criptografia).
-     * @throws IllegalArgumentException Se o e-mail fornecido já estiver cadastrado no banco.
+     * @throws EmailAlreadyExistsException Se o e-mail fornecido já estiver cadastrado no banco.
      */
     public void cadastrar(UsuarioRequestDTO dto) {
 
         if (usuarioRepository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException(
-                    "Email já cadastrado."
-            );
+            throw new EmailAlreadyExistsException(
+                    "Email já cadastrado: " + dto.email());
         }
 
         Usuario usuario = new Usuario();

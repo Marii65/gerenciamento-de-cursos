@@ -26,7 +26,7 @@ import java.util.UUID;
 public class MatriculaController {
     private final MatriculaService matriculaService;
 
-    @Operation(summary = "Realizar matrícula", description = "Vincular um aluno a um curso. Impede matrículas duplicadas no mesmo curso.")
+    @Operation(summary = "Realizar matrícula", description = "Vincular um aluno a um curso. Impede mais de uma matrícula ativa do mesmo aluno no mesmo curso.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Matrícula efetuada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Requisição inválida"),

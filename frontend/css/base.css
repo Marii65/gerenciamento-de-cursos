@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background: #f5f7fb;
+    color: #172033;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+
+
+:root {
+
+    /* Cores principais */
+
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+
+    /* Cores de fundo */
+
+    --background: #f5f7fb;
+    --surface: #ffffff;
+
+    /* Texto */
+
+    --text-primary: #172033;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+
+    /* Bordas */
+
+    --border: #e2e8f0;
+
+    /* Estados */
+
+    --success: #16a34a;
+    --success-light: #dcfce7;
+
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+
+    /* Layout */
+
+    --sidebar-width: 250px;
+
+    /* Outros */
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    --shadow-sm:
+        0 1px 3px rgba(15, 23, 42, 0.08);
+
+    --shadow-md:
+        0 8px 20px rgba(15, 23, 42, 0.08);
+}
+

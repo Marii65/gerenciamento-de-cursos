@@ -136,6 +136,12 @@ public class MatriculaService {
      * @return Lista de {@link AlunoResponseDTO} pertencentes ao curso.
      */
     public List<AlunoResponseDTO> buscarAlunosPorCurso(UUID cursoId){
+
+        cursoRepository.findById(cursoId)
+                .orElseThrow(() ->
+                        new CursoNotFoundException(
+                                "Curso não encontrado: " + cursoId));
+
         return matriculaRepository.findByCursoId(cursoId)
                 .stream()
                 .map(Matricula::getAluno)
@@ -150,6 +156,12 @@ public class MatriculaService {
      * @return Lista de {@link CursoResponseDTO} associados ao aluno.
      */
     public List<CursoResponseDTO> buscarCursosPorAluno(UUID alunoId){
+
+        alunoRepository.findById(alunoId)
+                .orElseThrow(() ->
+                        new AlunoNotFoundException(
+                                "Aluno não encontrado: " + alunoId));
+
         return matriculaRepository.findByAlunoId(alunoId)
                 .stream()
                 .map(Matricula::getCurso)

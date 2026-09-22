@@ -3,7 +3,6 @@ package com.gerenciamentocursos.GerenciamentoDeCursos.service;
 import com.gerenciamentocursos.GerenciamentoDeCursos.dto.request.AlunoRequestDTO;
 import com.gerenciamentocursos.GerenciamentoDeCursos.dto.response.AlunoResponseDTO;
 import com.gerenciamentocursos.GerenciamentoDeCursos.entity.Aluno;
-import com.gerenciamentocursos.GerenciamentoDeCursos.entity.Curso;
 import com.gerenciamentocursos.GerenciamentoDeCursos.exception.AlunoNotFoundException;
 import com.gerenciamentocursos.GerenciamentoDeCursos.repository.AlunoRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+import com.gerenciamentocursos.GerenciamentoDeCursos.exception.AlunoComMatriculaException;
+import com.gerenciamentocursos.GerenciamentoDeCursos.repository.MatriculaRepository;
+
 
 /**
  * Serviço responsável por gerenciar as operações de negócio relacionadas aos Alunos.
@@ -21,6 +22,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 @RequiredArgsConstructor
 public class AlunoService {
     private final AlunoRepository alunoRepository;
+    private final MatriculaRepository matriculaRepository;
 
     /**
      * Cadastra um novo aluno no sistema.
@@ -90,6 +92,13 @@ public class AlunoService {
      */
     public void excluirAluno(UUID id) {
         Aluno aluno = buscarAlunoPorId(id);
+
+        if (!matriculaRepository.findByAlunoId(id).isEmpty()) {
+            throw new AlunoComMatriculaException(
+                    "Não é possível excluir o aluno porque ele possui matrículas cadastradas."
+            );
+        }
+
         alunoRepository.delete(aluno);
     }
 
