@@ -68,6 +68,10 @@ public class MatriculaService {
         matricula.setAluno(aluno);
         matricula.setCurso(curso);
 
+        matricula.setDataPrevisaoConclusao(
+                dto.dataPrevisaoConclusao()
+        );
+
         Matricula matriculaSalva = matriculaRepository.save(matricula);
 
         return toResponseDTO(matriculaSalva);
@@ -197,6 +201,7 @@ public class MatriculaService {
                 matricula.getCurso().getId(),
                 matricula.getCurso().getNome(),
                 matricula.getDataMatricula(),
+                matricula.getDataPrevisaoConclusao(),
                 matricula.getStatus()
         );
     }

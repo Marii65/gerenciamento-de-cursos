@@ -28,6 +28,9 @@ public record MatriculaResponseDTO (
         @Schema(description = "Data em que a matrícula foi realizada", example = "2026-09-21")
         LocalDate dataMatricula,
 
+        @Schema(description = "Data em que o curso será concluído", example = "2026-09-21")
+        LocalDate dataPrevisaoConclusao,
+
         @Schema(description = "Status atual da matrícula (ATIVA, CANCELADA, CONCLUIDA)", example = "ATIVA")
         Status status
 

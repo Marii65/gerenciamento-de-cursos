@@ -33,6 +33,9 @@ public class Matricula {
     @Column(name = "data_matricula", nullable = false)
     private LocalDate dataMatricula;
 
+    @Column(name = "data_conclusao", nullable = false)
+    private LocalDate dataPrevisaoConclusao;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;

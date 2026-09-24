@@ -94,7 +94,6 @@ export async function renderMatriculas() {
     setupMatriculasEvents();
 
     await carregarMatriculas();
-
 }
 
 
@@ -128,9 +127,7 @@ async function carregarMatriculas() {
             "Erro ao carregar as matrículas.",
             "error"
         );
-
     }
-
 }
 
 
@@ -175,6 +172,8 @@ function renderMatriculasTable(lista) {
 
                         <th>Data da matrícula</th>
 
+                        <th>Conclusão prevista</th>
+
                         <th>Status</th>
 
                         <th>Ações</th>
@@ -206,11 +205,19 @@ function renderMatriculasTable(lista) {
                             </td>
 
                             <td>
+                                ${formatarData(
+                                    matricula.dataPrevisaoConclusao
+                                )}
+                            </td>
+
+                            <td>
 
                                 <span class="status status-${matricula.status.toLowerCase()}">
+
                                     ${formatarStatus(
                                         matricula.status
                                     )}
+
                                 </span>
 
                             </td>
@@ -220,19 +227,29 @@ function renderMatriculasTable(lista) {
                                 ${
                                     matricula.status === "ATIVA"
                                         ? `
-                                            <button
-                                                class="btn btn-danger btn-cancelar-matricula"
-                                                data-id="${matricula.id}"
-                                                type="button"
-                                            >
-                                                Cancelar
-                                            </button>
-                                          `
+                                            <div class="table-actions">
+
+                                                <button
+                                                    class="btn btn-primary btn-concluir-matricula"
+                                                    data-id="${matricula.id}"
+                                                    type="button"
+                                                >
+                                                    Concluir
+                                                </button>
+
+                                                <button
+                                                    class="btn btn-danger btn-cancelar-matricula"
+                                                    data-id="${matricula.id}"
+                                                    type="button"
+                                                >
+                                                    Cancelar
+                                                </button>
+
+                                            </div>
+                                        `
                                         : `
-                                            <span>
-                                                -
-                                            </span>
-                                          `
+                                            <span>-</span>
+                                        `
                                 }
 
                             </td>
@@ -250,7 +267,6 @@ function renderMatriculasTable(lista) {
     `;
 
     setupTableEvents();
-
 }
 
 
@@ -281,7 +297,6 @@ function setupMatriculasEvents() {
         "input",
         handleSearch
     );
-
 }
 
 
@@ -290,6 +305,46 @@ function setupMatriculasEvents() {
  */
 function setupTableEvents() {
 
+    /*
+     * Botões de concluir.
+     */
+    const concludeButtons =
+        document.querySelectorAll(
+            ".btn-concluir-matricula"
+        );
+
+
+    concludeButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const id =
+                    button.dataset.id;
+
+                const matricula =
+                    matriculas.find(
+                        item => item.id === id
+                    );
+
+                if (matricula) {
+
+                    openConcluirMatriculaModal(
+                        matricula
+                    );
+
+                }
+
+            }
+        );
+
+    });
+
+
+    /*
+     * Botões de cancelar.
+     */
     const cancelButtons =
         document.querySelectorAll(
             ".btn-cancelar-matricula"
@@ -311,29 +366,33 @@ function setupTableEvents() {
                     );
 
                 if (matricula) {
+
                     openCancelarMatriculaModal(
                         matricula
                     );
+
                 }
 
             }
         );
 
     });
-
 }
 
 
 /**
  * Abre o modal de nova matrícula.
- *
  */
 async function openNovaMatriculaModal() {
 
     const modal = openModal({
+
         title: "Nova matrícula",
+
         content: `
+
             <div class="form-group">
+
                 <label for="matricula-aluno">
                     Aluno
                 </label>
@@ -343,13 +402,18 @@ async function openNovaMatriculaModal() {
                     class="form-input"
                     required
                 >
+
                     <option value="">
                         Carregando alunos...
                     </option>
+
                 </select>
+
             </div>
 
+
             <div class="form-group">
+
                 <label for="matricula-curso">
                     Curso
                 </label>
@@ -359,11 +423,31 @@ async function openNovaMatriculaModal() {
                     class="form-input"
                     required
                 >
+
                     <option value="">
                         Carregando cursos...
                     </option>
+
                 </select>
+
             </div>
+
+
+            <div class="form-group">
+
+                <label for="matricula-conclusao">
+                    Data prevista de conclusão
+                </label>
+
+                <input
+                    type="date"
+                    id="matricula-conclusao"
+                    class="form-input"
+                    required
+                >
+
+            </div>
+
 
             <div class="modal-footer">
 
@@ -384,32 +468,67 @@ async function openNovaMatriculaModal() {
                 </button>
 
             </div>
+
         `
     });
 
+
     const alunoSelect =
-        document.querySelector("#matricula-aluno");
+        document.querySelector(
+            "#matricula-aluno"
+        );
+
 
     const cursoSelect =
-        document.querySelector("#matricula-curso");
+        document.querySelector(
+            "#matricula-curso"
+        );
+
+
+    const dataConclusaoInput =
+        document.querySelector(
+            "#matricula-conclusao"
+        );
+
 
     const fecharButton =
-        document.querySelector("#btn-fechar-matricula");
+        document.querySelector(
+            "#btn-fechar-matricula"
+        );
+
 
     const confirmarButton =
-        document.querySelector("#btn-confirmar-matricula");
+        document.querySelector(
+            "#btn-confirmar-matricula"
+        );
+
 
     fecharButton.addEventListener(
         "click",
         modal.close
     );
 
+
+    /*
+     * Impede selecionar uma data passada.
+     */
+    const hoje =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+
+    dataConclusaoInput.min = hoje;
+
+
     try {
 
-        const [alunos, cursos] = await Promise.all([
-            listarAlunos(),
-            listarCursos()
-        ]);
+        const [alunos, cursos] =
+            await Promise.all([
+                listarAlunos(),
+                listarCursos()
+            ]);
+
 
         if (!alunos.length) {
 
@@ -422,18 +541,22 @@ async function openNovaMatriculaModal() {
         } else {
 
             alunoSelect.innerHTML = `
+
                 <option value="">
                     Selecione um aluno
                 </option>
 
                 ${alunos.map(aluno => `
+
                     <option value="${aluno.id}">
                         ${aluno.nome}
                     </option>
-                `).join("")}
-            `;
 
+                `).join("")}
+
+            `;
         }
+
 
         if (!cursos.length) {
 
@@ -446,18 +569,22 @@ async function openNovaMatriculaModal() {
         } else {
 
             cursoSelect.innerHTML = `
+
                 <option value="">
                     Selecione um curso
                 </option>
 
                 ${cursos.map(curso => `
+
                     <option value="${curso.id}">
                         ${curso.nome}
                     </option>
-                `).join("")}
-            `;
 
+                `).join("")}
+
+            `;
         }
+
 
     } catch (error) {
 
@@ -473,6 +600,7 @@ async function openNovaMatriculaModal() {
         return;
     }
 
+
     confirmarButton.addEventListener(
         "click",
         async () => {
@@ -480,39 +608,60 @@ async function openNovaMatriculaModal() {
             const alunoId =
                 alunoSelect.value;
 
+
             const cursoId =
                 cursoSelect.value;
 
-            if (!alunoId || !cursoId) {
+
+            const dataPrevisaoConclusao =
+                dataConclusaoInput.value;
+
+
+            if (
+                !alunoId ||
+                !cursoId ||
+                !dataPrevisaoConclusao
+            ) {
 
                 showToast(
-                    "Selecione o aluno e o curso.",
+                    "Preencha todos os campos obrigatórios.",
                     "error"
                 );
 
                 return;
             }
 
+
             confirmarButton.disabled = true;
 
             confirmarButton.textContent =
                 "Matriculando...";
 
+
             try {
 
                 await criarMatricula({
+
                     alunoId,
-                    cursoId
+
+                    cursoId,
+
+                    dataPrevisaoConclusao
+
                 });
 
+
                 modal.close();
+
 
                 showToast(
                     "Matrícula criada com sucesso!",
                     "success"
                 );
 
+
                 await carregarMatriculas();
+
 
             } catch (error) {
 
@@ -523,7 +672,10 @@ async function openNovaMatriculaModal() {
                     "error"
                 );
 
-                confirmarButton.disabled = false;
+
+                confirmarButton.disabled =
+                    false;
+
 
                 confirmarButton.textContent =
                     "Matricular aluno";
@@ -556,7 +708,8 @@ function openCancelarMatriculaModal(matricula) {
                     line-height: 1.5;
                 ">
 
-                    Tem certeza que deseja cancelar a matrícula de
+                    Tem certeza que deseja cancelar
+                    a matrícula de
 
                     <strong>
                         ${matricula.alunoNome}
@@ -583,6 +736,7 @@ function openCancelarMatriculaModal(matricula) {
                         Voltar
                     </button>
 
+
                     <button
                         type="button"
                         class="btn btn-danger"
@@ -596,7 +750,6 @@ function openCancelarMatriculaModal(matricula) {
             </div>
 
         `
-
     });
 
 
@@ -629,7 +782,6 @@ function openCancelarMatriculaModal(matricula) {
 
         }
     );
-
 }
 
 
@@ -663,31 +815,35 @@ async function handleCancelarMatricula(
             "CANCELADA"
         );
 
+
         modal.close();
+
 
         showToast(
             "Matrícula cancelada com sucesso!",
             "success"
         );
 
+
         await carregarMatriculas();
+
 
     } catch (error) {
 
         console.error(error);
+
 
         showToast(
             error.message,
             "error"
         );
 
+
         button.disabled = false;
 
         button.textContent =
             "Cancelar matrícula";
-
     }
-
 }
 
 
@@ -706,20 +862,23 @@ function handleSearch(event) {
 
     const filteredMatriculas =
         matriculas.filter(matricula =>
+
             matricula.alunoNome
                 .toLowerCase()
                 .includes(searchValue)
+
             ||
+
             matricula.cursoNome
                 .toLowerCase()
                 .includes(searchValue)
+
         );
 
 
     renderMatriculasTable(
         filteredMatriculas
     );
-
 }
 
 
@@ -741,7 +900,6 @@ function formatarData(date) {
 
 
     return `${day}/${month}/${year}`;
-
 }
 
 
@@ -765,5 +923,145 @@ function formatarStatus(status) {
 
 
     return statusMap[status] || status;
+}
 
+
+/**
+ * Abre o modal de confirmação de conclusão.
+ *
+ * @param {Object} matricula
+ */
+function openConcluirMatriculaModal(matricula) {
+
+    const modal = openModal({
+
+        title: "Concluir matrícula",
+
+        content: `
+
+            <div>
+
+                <p style="
+                    margin-bottom: 20px;
+                    color: var(--text-secondary);
+                    font-size: 13px;
+                    line-height: 1.5;
+                ">
+
+                    Tem certeza que deseja marcar
+                    a matrícula de
+
+                    <strong>
+                        ${matricula.alunoNome}
+                    </strong>
+
+                    no curso
+
+                    <strong>
+                        ${matricula.cursoNome}
+                    </strong>
+
+                    como concluída?
+
+                </p>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="btn-fechar-conclusao"
+                    >
+                        Voltar
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="btn-confirmar-conclusao"
+                    >
+                        Concluir matrícula
+                    </button>
+
+                </div>
+
+            </div>
+
+        `
+    });
+
+
+    const fecharButton =
+        document.querySelector(
+            "#btn-fechar-conclusao"
+        );
+
+
+    const confirmarButton =
+        document.querySelector(
+            "#btn-confirmar-conclusao"
+        );
+
+
+    fecharButton.addEventListener(
+        "click",
+        modal.close
+    );
+
+
+    confirmarButton.addEventListener(
+        "click",
+        async () => {
+
+            confirmarButton.disabled =
+                true;
+
+
+            confirmarButton.textContent =
+                "Concluindo...";
+
+
+            try {
+
+                await atualizarStatusMatricula(
+                    matricula.id,
+                    "CONCLUIDA"
+                );
+
+
+                modal.close();
+
+
+                showToast(
+                    "Matrícula concluída com sucesso!",
+                    "success"
+                );
+
+
+                await carregarMatriculas();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                showToast(
+                    error.message,
+                    "error"
+                );
+
+
+                confirmarButton.disabled =
+                    false;
+
+
+                confirmarButton.textContent =
+                    "Concluir matrícula";
+            }
+
+        }
+    );
 }
