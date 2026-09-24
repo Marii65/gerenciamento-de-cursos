@@ -4,9 +4,12 @@ import { showToast } from "../components/Toast.js";
 
 import {
     listarMatriculas,
+    criarMatricula,
     atualizarStatusMatricula
 } from "../services/matriculaService.js";
 
+import { listarAlunos } from "../services/alunoService.js";
+import { listarCursos } from "../services/cursoService.js";
 
 let matriculas = [];
 
@@ -324,15 +327,210 @@ function setupTableEvents() {
 /**
  * Abre o modal de nova matrícula.
  *
- * O formulário será implementado na próxima etapa.
  */
-function openNovaMatriculaModal() {
+async function openNovaMatriculaModal() {
 
-    showToast(
-        "Formulário de matrícula será implementado nesta etapa.",
-        "info"
+    const modal = openModal({
+        title: "Nova matrícula",
+        content: `
+            <div class="form-group">
+                <label for="matricula-aluno">
+                    Aluno
+                </label>
+
+                <select
+                    id="matricula-aluno"
+                    class="form-input"
+                    required
+                >
+                    <option value="">
+                        Carregando alunos...
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="matricula-curso">
+                    Curso
+                </label>
+
+                <select
+                    id="matricula-curso"
+                    class="form-input"
+                    required
+                >
+                    <option value="">
+                        Carregando cursos...
+                    </option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="btn-fechar-matricula"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="btn-confirmar-matricula"
+                >
+                    Matricular aluno
+                </button>
+
+            </div>
+        `
+    });
+
+    const alunoSelect =
+        document.querySelector("#matricula-aluno");
+
+    const cursoSelect =
+        document.querySelector("#matricula-curso");
+
+    const fecharButton =
+        document.querySelector("#btn-fechar-matricula");
+
+    const confirmarButton =
+        document.querySelector("#btn-confirmar-matricula");
+
+    fecharButton.addEventListener(
+        "click",
+        modal.close
     );
 
+    try {
+
+        const [alunos, cursos] = await Promise.all([
+            listarAlunos(),
+            listarCursos()
+        ]);
+
+        if (!alunos.length) {
+
+            alunoSelect.innerHTML = `
+                <option value="">
+                    Nenhum aluno cadastrado
+                </option>
+            `;
+
+        } else {
+
+            alunoSelect.innerHTML = `
+                <option value="">
+                    Selecione um aluno
+                </option>
+
+                ${alunos.map(aluno => `
+                    <option value="${aluno.id}">
+                        ${aluno.nome}
+                    </option>
+                `).join("")}
+            `;
+
+        }
+
+        if (!cursos.length) {
+
+            cursoSelect.innerHTML = `
+                <option value="">
+                    Nenhum curso cadastrado
+                </option>
+            `;
+
+        } else {
+
+            cursoSelect.innerHTML = `
+                <option value="">
+                    Selecione um curso
+                </option>
+
+                ${cursos.map(curso => `
+                    <option value="${curso.id}">
+                        ${curso.nome}
+                    </option>
+                `).join("")}
+            `;
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        modal.close();
+
+        showToast(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+    confirmarButton.addEventListener(
+        "click",
+        async () => {
+
+            const alunoId =
+                alunoSelect.value;
+
+            const cursoId =
+                cursoSelect.value;
+
+            if (!alunoId || !cursoId) {
+
+                showToast(
+                    "Selecione o aluno e o curso.",
+                    "error"
+                );
+
+                return;
+            }
+
+            confirmarButton.disabled = true;
+
+            confirmarButton.textContent =
+                "Matriculando...";
+
+            try {
+
+                await criarMatricula({
+                    alunoId,
+                    cursoId
+                });
+
+                modal.close();
+
+                showToast(
+                    "Matrícula criada com sucesso!",
+                    "success"
+                );
+
+                await carregarMatriculas();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    error.message,
+                    "error"
+                );
+
+                confirmarButton.disabled = false;
+
+                confirmarButton.textContent =
+                    "Matricular aluno";
+            }
+
+        }
+    );
 }
 
 

@@ -5,6 +5,7 @@ import { renderAlunos } from "./pages/Alunos.js";
 import { renderLogin } from "./pages/Login.js";
 import { isAuthenticated, logout } from "./services/authService.js";
 import { renderMatriculas } from "./pages/Matriculas.js";
+import { renderCursos } from "./pages/Cursos.js";
 
 function updateActiveNavigation(page) {
     const navItems = document.querySelectorAll(".nav-item");
@@ -42,6 +43,11 @@ function navigateTo(page) {
         case "matriculas":
             updateHeaderTitle("Matrículas");
             renderMatriculas();
+            break;
+
+        case "cursos":
+            updateHeaderTitle("Cursos");
+            renderCursos();
             break;
 
         default:

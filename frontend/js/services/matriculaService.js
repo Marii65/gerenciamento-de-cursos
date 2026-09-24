@@ -1,5 +1,6 @@
 import { apiRequest } from "./api.js";
 
+
 export async function listarMatriculas() {
     return apiRequest("/matriculas");
 }
